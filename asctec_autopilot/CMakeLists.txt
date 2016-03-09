@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES autopilot
+  LIBRARIES autopilot autopilot_nodelet
   CATKIN_DEPENDS
     asctec_msgs
     diagnostic_updater
@@ -22,9 +22,14 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
+add_library(autopilot_nodelet
+  src/autopilot_nodelet.cpp
+  )
+target_link_libraries(autopilot_nodelet autopilot ${catkin_LIBRARIES})
+add_dependencies(autopilot_nodelet ${catkin_EXPORTED_TARGETS})
+
 add_library(autopilot
   src/autopilot.cpp
-  src/autopilot_nodelet.cpp
   src/serial_interface.cpp
   src/crc16.cpp
   src/telemetry.cpp
@@ -37,7 +42,7 @@ add_executable(autopilot_node
   )
 target_link_libraries(autopilot_node autopilot ${catkin_LIBRARIES})
 
-install(TARGETS autopilot autopilot_node
+install(TARGETS autopilot autopilot_nodelet autopilot_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -46,3 +51,7 @@ install(TARGETS autopilot autopilot_node
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   )
+
+install(FILES autopilot_nodelet.xml
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

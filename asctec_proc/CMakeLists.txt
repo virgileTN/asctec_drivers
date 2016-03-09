@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES autopilot
+  LIBRARIES asctec_proc asctec_proc_nodelet
   CATKIN_DEPENDS
     asctec_msgs
     mav_msgs
@@ -27,8 +27,13 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_library(asctec_proc
+add_library(asctec_proc_nodelet
   src/asctec_proc_nodelet.cpp
+  )
+target_link_libraries(asctec_proc_nodelet asctec_proc ${catkin_LIBRARIES})
+add_dependencies(asctec_proc_nodelet ${catkin_EXPORTED_TARGETS})
+
+add_library(asctec_proc
   src/asctec_proc.cpp
   )
 target_link_libraries(asctec_proc ${catkin_LIBRARIES})
@@ -39,7 +44,7 @@ add_executable(asctec_proc_node
   )
 target_link_libraries(asctec_proc_node asctec_proc ${catkin_LIBRARIES})
 
-install(TARGETS asctec_proc_node asctec_proc
+install(TARGETS asctec_proc_node asctec_proc_nodelet asctec_proc
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -48,3 +53,7 @@ install(TARGETS asctec_proc_node asctec_proc
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   )
+
+install(FILES asctec_proc_nodelet.xml
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
