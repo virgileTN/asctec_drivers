@@ -2,15 +2,15 @@
 
   #### Nodelet manager ####################################
 
-  <node pkg="nodelet" type="nodelet" name="pelican_manager" args="manager" 
+  <node pkg="nodelet" type="nodelet" name="pelican_manager" args="manager"
     output="screen" />
 
   #### Asctec Autopilot ###################################
 
-  <node pkg="nodelet" type="nodelet" name="AutoPilotNodelet" 
+  <node pkg="nodelet" type="nodelet" name="AutoPilotNodelet"
     args="load asctec_autopilot/AutoPilotNodelet pelican_manager" output="screen">
 
-    <param name="port" type="string" value="/dev/ttyUSB0"/>
+    <param name="port" type="string" value="/dev/ttyS3"/>
     <param name="speed" type="int" value="57600"/>
     <param name="freq" type="double" value="20.0"/>
 
@@ -30,12 +30,9 @@
 
   #### Asctec Proc ########################################
 
-  <node pkg="nodelet" type="nodelet" name="AsctecProcNodelet" 
+  <node pkg="nodelet" type="nodelet" name="AsctecProcNodelet"
     args="load asctec_proc/AsctecProcNodelet pelican_manager" output="screen">
 
   </node>
 
 </launch>
-
-
-
