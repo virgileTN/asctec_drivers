@@ -112,8 +112,8 @@ namespace asctec
     while (bytes_available < bytes_requested)
     {
       ioctl(dev_,FIONREAD,&bytes_available);
-      usleep(1);
-      if (i>650 && bytes_available < bytes_requested)
+      usleep(2);
+      if (i>5650 && bytes_available < bytes_requested)
       {
         ROS_ERROR("Timeout: %d bytes available %d bytes requested",bytes_available,bytes_requested);
         return bytes_available;
@@ -222,15 +222,15 @@ namespace asctec
     if (i == 0 || strncmp (stoken, "<#<", 3) != 0)
     {
       ROS_ERROR ("Error Reading Packet Footer: %s", strerror (errno));
-      ROS_DEBUG ("Read (%d): %s", i, stoken);
-      while (read (dev_, stoken, 1) != 0)
-      {
-        stoken[1] = '\0';
-        ROS_DEBUG ("%s", stoken);
-      }
+      ROS_ERROR ("Read (%d): %s", i, stoken);
+     // while (read (dev_, stoken, 1) != 0)
+     // {
+     //   stoken[1] = '\0';
+     //   ROS_DEBUG ("%s", stoken);
+     // }
       flush ();
       drain ();
-      ROS_DEBUG ("Packet Footer Corrupt!!");
+      ROS_ERROR ("Packet Footer Corrupt!!");
       return false;
     }
     serialport_bytes_rx_ += 3;
@@ -271,6 +271,86 @@ namespace asctec
       ROS_BREAK ();
     }
   }
+
+  void SerialInterface::sendWaypoint (Telemetry * telemetry)
+  {
+    int i;
+    char data[5];
+
+    telemetry->ack_.ack_received=false;
+
+    if(!telemetry->waypointEnabled_) return;
+    if(!telemetry->new_wp) return;
+    telemetry->new_wp=false;
+
+    if(telemetry->WAYPOINT_.chksum != (short) ((short) 0xAAAA + telemetry->WAYPOINT_.yaw + telemetry->WAYPOINT_.height + telemetry->WAYPOINT_.time + telemetry->WAYPOINT_.X + telemetry->WAYPOINT_.Y + telemetry->WAYPOINT_.max_speed + telemetry->WAYPOINT_.pos_acc + telemetry->WAYPOINT_.properties + telemetry->WAYPOINT_.wp_number)){
+      return;
+    }
+
+    flush();
+
+    if(telemetry->WAYPOINT_.X==1)
+    {
+      unsigned char cmd[] = ">*>wl";
+      output(cmd, 5);
+      ROS_INFO("Set home");
+    }
+
+    if(telemetry->WAYPOINT_.X==2)
+    {
+      unsigned char cmd[] = ">*>wh";
+      output(cmd, 5);
+      ROS_INFO("Go to home");
+    }
+
+    if(telemetry->WAYPOINT_.X==3)
+    {
+      unsigned char cmd[] = ">*>we";
+      output(cmd, 5);
+      ROS_INFO("Land here");
+    }
+
+    /*telemetry->WAYPOINT_.wp_number= 1;
+    telemetry->WAYPOINT_.properties = 0x17;
+    telemetry->WAYPOINT_.max_speed= 100;
+    telemetry->WAYPOINT_.time = 500;
+    telemetry->WAYPOINT_.pos_acc = 2500;
+    telemetry->WAYPOINT_.chksum = (short) 0xAAAA + telemetry->WAYPOINT_.yaw + telemetry->WAYPOINT_.height + telemetry->WAYPOINT_.time + telemetry->WAYPOINT_.X + telemetry->WAYPOINT_.Y + telemetry->WAYPOINT_.max_speed + telemetry->WAYPOINT_.pos_acc + telemetry->WAYPOINT_.properties + telemetry->WAYPOINT_.wp_number;*/
+
+    if(telemetry->WAYPOINT_.X!=1 && telemetry->WAYPOINT_.X!=2 && telemetry->WAYPOINT_.X!=3)
+    {
+      unsigned char cmd[] = ">*>ws";
+
+      output(cmd, 5);
+      output((unsigned char*) &telemetry->WAYPOINT_, sizeof(telemetry->WAYPOINT_));
+    }
+
+    wait(5);
+    i = read (dev_,data,5);
+    if (i != 5) {
+      ROS_ERROR("Control Response : Insufficient Data");
+      flush();
+      return;
+    }
+    if (strncmp(data,">a",2) != 0) {
+      ROS_ERROR("Corrupt Response Header %c%c (%0x%0x)",data[0],data[1],data[0],data[1]);
+      flush();
+      return;
+    }
+    if (strncmp(data+3,"a<",2) != 0) {
+      ROS_ERROR("Corrupt Response Footer %c%c (%0x%0x)",data[3],data[4],data[3],data[4]);
+      flush();
+      return;
+    }
+    ROS_INFO("Response Code %0x",data[2]);
+    ROS_INFO("ACK Received");
+
+    telemetry->ack_.ack_received=true;
+    telemetry->ack_.code=data[2];
+
+    telemetry->ackPublisher_.publish(telemetry->ack_);
+  }
+
   void SerialInterface::sendControl (Telemetry * telemetry)
   {
     int i;
@@ -282,7 +362,7 @@ namespace asctec
     unsigned char cmd[] = ">*>di";
     //telemetry->dumpCTRL_INPUT();
     if (telemetry->controlInterval_ != 0 && ((telemetry->controlCount_ - telemetry->controlOffset_) % telemetry->controlInterval_ == 0)) {
-      if(telemetry->CTRL_INPUT_.chksum != telemetry->CTRL_INPUT_.pitch + telemetry->CTRL_INPUT_.roll + telemetry->CTRL_INPUT_.yaw + telemetry->CTRL_INPUT_.thrust + telemetry->CTRL_INPUT_.ctrl + (short) 0xAAAA){
+      if(telemetry->CTRL_INPUT_.chksum != (short) (telemetry->CTRL_INPUT_.pitch + telemetry->CTRL_INPUT_.roll + telemetry->CTRL_INPUT_.yaw + telemetry->CTRL_INPUT_.thrust + telemetry->CTRL_INPUT_.ctrl + (short) 0xAAAA)){
         //ROS_INFO("invalid CtrlInput checksum: %d !=  %d", telemetry->CTRL_INPUT_.chksum, telemetry->CTRL_INPUT_.pitch + telemetry->CTRL_INPUT_.roll + telemetry->CTRL_INPUT_.yaw + telemetry->CTRL_INPUT_.thrust + telemetry->CTRL_INPUT_.ctrl + (short) 0xAAAA);
         return;
       }
@@ -343,7 +423,9 @@ namespace asctec
 
     ROS_DEBUG ("  Requesting %04x %zd packets", (short) telemetry->requestPackets_.to_ulong (),
               telemetry->requestPackets_.count ());
-    sprintf (cmd, ">*>p%c", (short) telemetry->requestPackets_.to_ulong ());
+    //sprintf (cmd, ">*>p%c", (short) telemetry->requestPackets_.to_ulong ());
+    short polling = (short) telemetry->requestPackets_.to_ulong ();
+    sprintf (cmd, ">*>p%c%c", polling & 0x00ff, (polling & 0xff00) >> 8);
     output (cmd, 6);
 
     for (i = 0; i < telemetry->requestPackets_.count (); i++)
@@ -434,6 +516,16 @@ namespace asctec
             result = true;
           }
           //telemetry->dumpGPS_DATA_ADVANCED();
+        }
+        else if (packet_type == Telemetry::PD_CURRENTWAY)
+        {
+          ROS_DEBUG ("  Packet type is CURRENT_WAY");
+          memcpy (&telemetry->CURRENT_WAY_, spacket, packet_size);
+          telemetry->timestamps_[RequestTypes::CURRENT_WAY] = packetTime;
+          if (crc_valid (packet_crc, &telemetry->CURRENT_WAY_, packet_size))
+          {
+            result = true;
+          }
         }
         else
         {

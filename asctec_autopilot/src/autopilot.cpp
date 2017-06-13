@@ -56,8 +56,12 @@ namespace asctec
       enable_GPS_DATA_ = false;
     if (!nh_private_.getParam ("enable_GPS_DATA_ADVANCED", enable_GPS_DATA_ADVANCED_))
       enable_GPS_DATA_ADVANCED_ = false;
+    if (!nh_private_.getParam ("enable_CURRENT_WAY", enable_CURRENT_WAY_))
+      enable_CURRENT_WAY_ = false;
     if (!nh_private_.getParam ("enable_CONTROL", enable_CONTROL_))
       enable_CONTROL_ = false;
+    if (!nh_private_.getParam ("enable_WAYPOINT", enable_WAYPOINT_))
+      enable_WAYPOINT_ = false;
 
     if (!nh_private_.getParam ("interval_LL_STATUS", interval_LL_STATUS_))
       interval_LL_STATUS_ = 1;
@@ -73,8 +77,12 @@ namespace asctec
       interval_GPS_DATA_ = 1;
     if (!nh_private_.getParam ("interval_GPS_DATA_ADVANCED", interval_GPS_DATA_ADVANCED_))
       interval_GPS_DATA_ADVANCED_ = 1;
+    if (!nh_private_.getParam ("interval_CURRENT_WAY", interval_CURRENT_WAY_))
+      interval_CURRENT_WAY_ = 1;
     if (!nh_private_.getParam ("interval_CONTROL", interval_CONTROL_))
       interval_CONTROL_ = 1;
+    if (!nh_private_.getParam ("interval_WAYPOINT", interval_WAYPOINT_))
+      interval_WAYPOINT_ = 1;
 
     if (!nh_private_.getParam ("offset_LL_STATUS", offset_LL_STATUS_))
       offset_LL_STATUS_ = 0;
@@ -90,8 +98,12 @@ namespace asctec
       offset_GPS_DATA_ = 0;
     if (!nh_private_.getParam ("offset_GPS_DATA_ADVANCED", offset_GPS_DATA_ADVANCED_))
       offset_GPS_DATA_ADVANCED_ = 0;
+    if (!nh_private_.getParam ("offset_CURRENT_WAY", offset_CURRENT_WAY_))
+      offset_CURRENT_WAY_ = 0;
     if (!nh_private_.getParam ("offset_CONTROL", offset_CONTROL_))
       offset_CONTROL_ = 0;
+    if (!nh_private_.getParam ("offset_WAYPOINT", offset_WAYPOINT_))
+      offset_WAYPOINT_ = 0;
 
     if (freq_ <= 0.0)
       ROS_FATAL ("Invalid frequency param");
@@ -127,6 +139,19 @@ namespace asctec
       telemetry_->enablePolling (asctec::RequestTypes::GPS_DATA, interval_GPS_DATA_, offset_GPS_DATA_);
     if(enable_GPS_DATA_ADVANCED_)
       telemetry_->enablePolling (asctec::RequestTypes::GPS_DATA_ADVANCED, interval_GPS_DATA_ADVANCED_,  offset_GPS_DATA_ADVANCED_);
+    if(enable_CURRENT_WAY_)
+      telemetry_->enablePolling (asctec::RequestTypes::CURRENT_WAY, interval_CURRENT_WAY_,  offset_CURRENT_WAY_);
+
+    // **** enable waypoint
+    if(enable_WAYPOINT_)
+    {
+      ROS_INFO("Waypoint Enabled");
+      telemetry_->enableWaypoint(telemetry_, interval_CONTROL_, offset_CONTROL_);
+    }
+    else
+    {
+      ROS_INFO("Waypoint Disabled");
+    }
 
     // **** enable control
     if(enable_CONTROL_ == true)
@@ -165,6 +190,7 @@ namespace asctec
     else
     {
       serialInterface_->sendControl(telemetry_);
+      serialInterface_->sendWaypoint(telemetry_);
     }
     telemetry_->buildRequest();
     telemetry_->requestCount_++;

@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="asctec_autopilot" type="trace_gps_simple" name="trace_gps_simple" args="" output="screen" />
+
+</launch>
+

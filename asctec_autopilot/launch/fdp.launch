@@ -1,0 +1,30 @@
+<launch>
+
+  <node pkg="asctec_autopilot" type="fdp" name="fdp" args="" output="screen" />
+
+  <param name="distance" type="double" value="20"/>
+  <param name="vitesse" type="int" value="50"/>
+  <param name="diff_hauteur" type="int" value="5000"/>
+  <param name="sup_height" type="int" value="30000"/>
+
+
+    <!-- La liste des Drones sans le supérieur -->
+    <param name="ListeDrone" type="string" value="5,2,4,1,"/>
+
+    <!-- Le code du drone supérieur, mettre 0 en l'absence d'un drone -->
+    <param name="CodeSup" type="int" value="0"/>
+    <!-- Hauteur du drone supérieur -->
+    <param name="HauteurSup" type="int" value="20000"/>
+
+    <!-- Ecart en mm, X vers la droite et Y dans la direction du leader -->
+    <param name="EcartX" type="string" value="0,-5,5,0"/>
+    <param name="EcartY" type="string" value="0,-5,-5,10"/>
+
+    <!-- Hauteur en mm de chacun des drones de la formation -->
+    <param name="HauteurForm" type="string" value="10000,5000,15000,8000"/>
+	<!-- Tableau de destination (commence a 0) -->
+    <param name="VLatitude" type="string" value="486591890,486580420,486589800,486600870"/>
+    <param name="VLongitude" type="string" value="61335860,61343050,61354730,61346620"/>
+
+</launch>
+

@@ -1,59 +1,31 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(asctec_proc)
+cmake_minimum_required(VERSION 2.4.6)
+include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-find_package(catkin REQUIRED COMPONENTS
-  asctec_msgs
-  mav_msgs
-  nav_msgs
-  nodelet
-  roscpp
-  sensor_msgs
-  std_msgs
-  tf
-  )
+# Set the build type.  Options are:
+#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
+#  Debug          : w/ debug symbols, w/o optimization
+#  Release        : w/o debug symbols, w/ optimization
+#  RelWithDebInfo : w/ debug symbols, w/ optimization
+#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
+set(ROS_BUILD_TYPE RelWithDebInfo)
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES asctec_proc asctec_proc_nodelet
-  CATKIN_DEPENDS
-    asctec_msgs
-    mav_msgs
-    nodelet
-    roscpp
-    sensor_msgs
-    std_msgs
-    tf
-  )
+rosbuild_init()
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+rosbuild_gensrv()
 
-add_library(asctec_proc_nodelet
-  src/asctec_proc_nodelet.cpp
-  )
-target_link_libraries(asctec_proc_nodelet asctec_proc ${catkin_LIBRARIES})
-add_dependencies(asctec_proc_nodelet ${catkin_EXPORTED_TARGETS})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-add_library(asctec_proc
-  src/asctec_proc.cpp
-  )
-target_link_libraries(asctec_proc ${catkin_LIBRARIES})
-add_dependencies(asctec_proc ${catkin_EXPORTED_TARGETS})
+# create autopilot library
 
-add_executable(asctec_proc_node
-  src/asctec_proc_node.cpp
-  )
-target_link_libraries(asctec_proc_node asctec_proc ${catkin_LIBRARIES})
+rosbuild_add_library (asctec_proc src/asctec_proc.cpp)
 
-install(TARGETS asctec_proc_node asctec_proc_nodelet asctec_proc
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  )
+# create autopilot_nodelet library
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  )
+rosbuild_add_library (asctec_proc_nodelet src/asctec_proc_nodelet.cpp)
+target_link_libraries (asctec_proc_nodelet asctec_proc)
 
-install(FILES asctec_proc_nodelet.xml
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+# create autopilot_node executable
+
+rosbuild_add_executable(asctec_proc_node src/asctec_proc_node.cpp)
+target_link_libraries (asctec_proc_node asctec_proc)

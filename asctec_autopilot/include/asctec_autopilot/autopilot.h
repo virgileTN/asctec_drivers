@@ -76,9 +76,15 @@ namespace asctec
       bool enable_GPS_DATA_ADVANCED_;
       int interval_GPS_DATA_ADVANCED_;
       int offset_GPS_DATA_ADVANCED_;
+      bool enable_CURRENT_WAY_;
+      int interval_CURRENT_WAY_;
+      int offset_CURRENT_WAY_;
       bool enable_CONTROL_;
       int interval_CONTROL_;
       int offset_CONTROL_;
+      bool enable_WAYPOINT_;
+      int interval_WAYPOINT_;
+      int offset_WAYPOINT_;
 
       SerialInterface* serialInterface_;
       Telemetry* telemetry_;

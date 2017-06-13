@@ -48,6 +48,7 @@ namespace asctec
     void output (char *output, int len);
     void output (unsigned char *output, int len);
     bool getPackets (Telemetry *telemetry);
+    void sendWaypoint (Telemetry * telemetry);
     void sendControl (Telemetry *telemetry);
     void sendEstop (Telemetry *telemetry);
     void dumpDebug (void);
@@ -60,7 +61,7 @@ namespace asctec
     int pt[800];
     int counter;
   private:
-      speed_t bitrate (int);
+    speed_t bitrate (int);
     void flush ();
     void drain ();
     void stall (bool);

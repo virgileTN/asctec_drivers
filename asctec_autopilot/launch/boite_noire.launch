@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="asctec_autopilot" type="boite_noire" name="boite_noire" args="" output="screen" />
+
+</launch>
+

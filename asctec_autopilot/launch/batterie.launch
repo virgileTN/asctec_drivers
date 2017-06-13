@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="asctec_autopilot" type="batterie" name="batterie" args="" output="screen" />
+
+</launch>
+

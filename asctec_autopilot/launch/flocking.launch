@@ -1,0 +1,10 @@
+<launch>
+
+  <node pkg="asctec_autopilot" type="flocking" name="flocking" args="" output="screen" />
+
+  <param name="distance" type="double" value="20"/>
+  <param name="vitesse" type="int" value="50"/>
+  <param name="diff_hauteur" type="int" value="5000"/>
+
+</launch>
+

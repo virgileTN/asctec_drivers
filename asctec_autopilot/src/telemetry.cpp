@@ -52,7 +52,7 @@ namespace asctec
     REQUEST_BITMASK[RequestTypes::RC_DATA] = 0x0008;
     REQUEST_BITMASK[RequestTypes::CONTROLLER_OUTPUT] = 0x0010;
     REQUEST_BITMASK[RequestTypes::GPS_DATA] = 0x0080;
-    REQUEST_BITMASK[RequestTypes::WAYPOINT] = 0x0100;
+    REQUEST_BITMASK[RequestTypes::CURRENT_WAY] = 0x0100;
     REQUEST_BITMASK[RequestTypes::GPS_DATA_ADVANCED] = 0x0200;
     REQUEST_BITMASK[RequestTypes::CAM_DATA] = 0x0800;
     estop_ = false;
@@ -66,6 +66,7 @@ namespace asctec
     ControllerOutput_ = boost::make_shared<asctec_msgs::ControllerOutput>();
     GPSData_          = boost::make_shared<asctec_msgs::GPSData>         ();
     GPSDataAdvanced_  = boost::make_shared<asctec_msgs::GPSDataAdvanced> ();
+    CurrentWay_       = boost::make_shared<asctec_msgs::CurrentWay>      ();
   }
   Telemetry::~Telemetry ()
   {
@@ -130,6 +131,11 @@ namespace asctec
            //dumpGPS_DATA_ADVANCED();
             requestPublisher_[i].publish (GPSDataAdvanced_);
             break;
+          case RequestTypes::CURRENT_WAY:
+            copyCURRENT_WAY ();
+            CurrentWay_->header.stamp = timestamps_[RequestTypes::CURRENT_WAY];
+            requestPublisher_[i].publish (CurrentWay_);
+            break;
           default:
             ROS_DEBUG ("Unable to publish unknown type");
         }
@@ -159,8 +165,8 @@ namespace asctec
       case RequestTypes::GPS_DATA_ADVANCED:
         requestPublisher_[msg] = nh_.advertise < asctec_msgs::GPSDataAdvanced > (requestToString (msg).c_str (), 10);
         break;
-      case RequestTypes::WAYPOINT:
-        // to be filled in 
+      case RequestTypes::CURRENT_WAY:
+        requestPublisher_[msg] = nh_.advertise < asctec_msgs::CurrentWay > (requestToString (msg).c_str (), 10);
         break;
       case RequestTypes::CAM_DATA:
         // to be filled in 
@@ -177,12 +183,24 @@ namespace asctec
     pollingEnabled_ = true;
   }
 
+  void Telemetry::enableWaypoint (Telemetry * telemetry_, uint8_t interval, uint8_t offset)
+  {
+    waypointSubscriber_ = nh_.subscribe("WAYPOINT_INPUT6", 1, &Telemetry::copyWP, telemetry_, ros::TransportHints().tcpNoDelay());
+    ROS_INFO("Listening to %s data on topic: %s", "WAYPOINT_INPUT6","WAYPOINT_INPUT6");
+    waypointInterval_ = interval;
+    waypointOffset_ = offset;
+    waypointEnabled_ = true;
+    new_wp=false;
+
+    ackPublisher_ = nh_.advertise <asctec_msgs::ACK> ("ACK6", 10);
+  }
+
   void Telemetry::enableControl (Telemetry * telemetry_, uint8_t interval, uint8_t offset)
   {
-    controlSubscriber_ = nh_.subscribe("CTRL_INPUT", 1, &Telemetry::copyCTRL_INPUT, telemetry_, ros::TransportHints().tcpNoDelay());
-    ROS_INFO("Listening to %s data on topic: %s", "CTRL_INPUT","CTRL_INPUT");
+    controlSubscriber_ = nh_.subscribe("CTRL_INPUT6", 1, &Telemetry::copyCTRL_INPUT, telemetry_, ros::TransportHints().tcpNoDelay());
+    ROS_INFO("Listening to %s data on topic: %s", "CTRL_INPUT6","CTRL_INPUT6");
     ROS_DEBUG ("Telemetry::enableControl()");
-    estopSubscriber_ = nh_.subscribe("ESTOP", 1, &Telemetry::estopCallback, telemetry_, ros::TransportHints().tcpNoDelay());
+    estopSubscriber_ = nh_.subscribe("ESTOP6", 1, &Telemetry::estopCallback, telemetry_, ros::TransportHints().tcpNoDelay());
     controlInterval_ = interval;
     controlOffset_ = offset;
     controlEnabled_ = true;
@@ -207,39 +225,39 @@ namespace asctec
     {
       case RequestTypes::LL_STATUS:
         {
-          return "LL_STATUS";
+          return "LL_STATUS6";
         }
       case RequestTypes::IMU_RAWDATA:
         {
-          return "IMU_RAWDATA";
+          return "IMU_RAWDATA6";
         }
       case RequestTypes::IMU_CALCDATA:
         {
-          return "IMU_CALCDATA";
+          return "IMU_CALCDATA6";
         }
       case RequestTypes::RC_DATA:
         {
-          return "RC_DATA";
+          return "RC_DATA6";
         }
       case RequestTypes::CONTROLLER_OUTPUT:
         {
-          return "CONTROLLER_OUTPUT";
+          return "CONTROLLER_OUTPUT6";
         }
       case RequestTypes::GPS_DATA:
         {
-          return "GPS_DATA";
+          return "GPS_DATA6";
         }
       case RequestTypes::GPS_DATA_ADVANCED:
         {
-          return "GPS_DATA_ADVANCED";
+          return "GPS_DATA_ADVANCED6";
         }
-      case RequestTypes::WAYPOINT:
+      case RequestTypes::CURRENT_WAY:
         {
-          return "WAYPOINT";
+          return "CURRENT_WAY6";
         }
       case RequestTypes::CAM_DATA:
         {
-          return "CAM_DATA";
+          return "CAM_DATA6";
         }
     }
     return "Unknown";
@@ -486,6 +504,21 @@ namespace asctec
     GPSDataAdvanced_->speed_x_best_estimate = GPS_DATA_ADVANCED_.speed_x_best_estimate;
     GPSDataAdvanced_->speed_y_best_estimate = GPS_DATA_ADVANCED_.speed_y_best_estimate;
   }
+
+  void Telemetry::copyCURRENT_WAY ()
+  {
+    CurrentWay_->dummy1 = CURRENT_WAY_.dummy1;
+    CurrentWay_->properties = CURRENT_WAY_.properties;
+    CurrentWay_->nr_of_wp = CURRENT_WAY_.nr_of_wp;
+    CurrentWay_->current_wp = CURRENT_WAY_.current_wp;
+    CurrentWay_->current_wp_memlocation = CURRENT_WAY_.current_wp_memlocation;
+    CurrentWay_->status = CURRENT_WAY_.status;
+    CurrentWay_->dummy2 = CURRENT_WAY_.dummy2;
+
+    CurrentWay_->navigation_status = CURRENT_WAY_.navigation_status;
+    CurrentWay_->distance_to_wp = CURRENT_WAY_.distance_to_wp;
+  }
+
   void Telemetry::copyCTRL_INPUT(asctec_msgs::CtrlInput msg){
     CTRL_INPUT_.pitch = msg.pitch;
     CTRL_INPUT_.roll = msg.roll;
@@ -494,5 +527,33 @@ namespace asctec
     CTRL_INPUT_.ctrl = msg.ctrl;
     CTRL_INPUT_.chksum = msg.chksum;
     //dumpCTRL_INPUT();
+  }
+
+  void Telemetry::copyWP(asctec_msgs::waypoint msg){
+    WAYPOINT_.wp_number = msg.wp_number;
+    WAYPOINT_.properties = msg.properties;
+    WAYPOINT_.max_speed = msg.max_speed;
+    WAYPOINT_.time = msg.time;
+    WAYPOINT_.pos_acc = msg.pos_acc;
+    WAYPOINT_.chksum = msg.chksum;
+
+    WAYPOINT_.X = msg.X;
+    WAYPOINT_.Y = msg.Y;
+    WAYPOINT_.height = msg.height;
+    WAYPOINT_.yaw = msg.yaw;
+
+    /*std::cout << "wp_number = " << (int) msg.wp_number;
+    std::cout << "properties = " << (int) msg.properties;
+    std::cout << "max_speed = " << (int) msg.max_speed;
+    std::cout << "time = " << msg.time;
+    std::cout << "pos_acc = " << msg.pos_acc;
+    std::cout << "chksum = " << msg.chksum;
+
+    std::cout << "longitude = " << msg.X;
+    std::cout << "latitude = " << msg.Y;
+    std::cout << "height = " << msg.height;
+    std::cout << "yaw = " << msg.yaw << "\n";*/
+
+    new_wp=true;
   }
 }
