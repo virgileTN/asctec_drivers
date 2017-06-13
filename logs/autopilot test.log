@@ -1,0 +1,73 @@
+firefly2@firefly2-Mastermind:~/workspace/catkin_ws$ roslaunch asctec_autopilot autopilot.launch 
+... logging to /home/firefly2/.ros/log/a42b14a4-5043-11e7-8749-000e8e313d65/roslaunch-firefly2-Mastermind-2314.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+
+started roslaunch server http://firefly2-Mastermind:43837/
+
+SUMMARY
+========
+
+PARAMETERS
+ * /AutoPilotNodelet6/enable_CONTROLLER_OUTPUT: True
+ * /AutoPilotNodelet6/enable_CURRENT_WAY: True
+ * /AutoPilotNodelet6/enable_GPS_DATA: True
+ * /AutoPilotNodelet6/enable_GPS_DATA_ADVANCED: True
+ * /AutoPilotNodelet6/enable_IMU_CALCDATA: True
+ * /AutoPilotNodelet6/enable_LL_STATUS: True
+ * /AutoPilotNodelet6/enable_WAYPOINT: True
+ * /AutoPilotNodelet6/freq: 20.0
+ * /AutoPilotNodelet6/interval_CONTROLLER_OUTPUT: 1
+ * /AutoPilotNodelet6/interval_CURRENT_WAY: 1
+ * /AutoPilotNodelet6/interval_GPS_DATA: 1
+ * /AutoPilotNodelet6/interval_GPS_DATA_ADVANCED: 1
+ * /AutoPilotNodelet6/interval_IMU_CALCDATA: 1
+ * /AutoPilotNodelet6/interval_LL_STATUS: 1
+ * /AutoPilotNodelet6/interval_WAYPOINT: 1
+ * /AutoPilotNodelet6/offset_CONTROLLER_OUTPUT: 0
+ * /AutoPilotNodelet6/offset_CURRENT_WAY: 0
+ * /AutoPilotNodelet6/offset_GPS_DATA: 0
+ * /AutoPilotNodelet6/offset_GPS_DATA_ADVANCED: 0
+ * /AutoPilotNodelet6/offset_IMU_CALCDATA: 0
+ * /AutoPilotNodelet6/offset_LL_STATUS: 0
+ * /AutoPilotNodelet6/offset_WAYPOINT: 0
+ * /AutoPilotNodelet6/port: /dev/ttyS3
+ * /AutoPilotNodelet6/speed: 57600
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.7
+
+NODES
+  /
+    AutoPilotNodelet6 (nodelet/nodelet)
+    pelican_manager6 (nodelet/nodelet)
+
+auto-starting new master
+process[master]: started with pid [2333]
+ROS_MASTER_URI=http://localhost:11311
+
+setting /run_id to a42b14a4-5043-11e7-8749-000e8e313d65
+process[rosout-1]: started with pid [2346]
+started core service [/rosout]
+process[pelican_manager6-2]: started with pid [2349]
+process[AutoPilotNodelet6-3]: started with pid [2350]
+[ INFO] [1497363711.425415264]: Loading nodelet /AutoPilotNodelet6 of type asctec_autopilot/AutoPilotNodelet to manager pelican_manager6 with the following remappings:
+[ INFO] [1497363711.431141399]: waitForService: Service [/pelican_manager6/load_nodelet] has not been advertised, waiting...
+[ INFO] [1497363711.456769364]: Initializing nodelet with 2 worker threads.
+[ INFO] [1497363711.476876035]: waitForService: Service [/pelican_manager6/load_nodelet] is now available.
+[ INFO] [1497363711.555490571]: Initializing Autopilot Nodelet
+[ INFO] [1497363711.559737000]: Creating AutoPilot Interface
+[ INFO] [1497363711.590046290]: Initializing serial port...
+[FATAL] [1497363711.590127305]: ASSERTION FAILED
+	file = /home/firefly2/workspace/catkin_ws/src/asctec_drivers/asctec_autopilot/src/serial_interface.cpp
+	line = 58
+	cond = dev_ != -1
+	message = 
+[FATAL] [1497363711.590333752]: Failed to open serial port: /dev/ttyS3 Permission denied
+[FATAL] [1497363711.590373841]: 
+
+[FATAL] [1497363711.810212011]: Failed to load nodelet '/AutoPilotNodelet6` of type `asctec_autopilot/AutoPilotNodelet` to manager `pelican_manager6'
+[pelican_manager6-2] process has died [pid 2349, exit code -5, cmd /opt/ros/kinetic/lib/nodelet/nodelet manager __name:=pelican_manager6 __log:=/home/firefly2/.ros/log/a42b14a4-5043-11e7-8749-000e8e313d65/pelican_manager6-2.log].
+log file: /home/firefly2/.ros/log/a42b14a4-5043-11e7-8749-000e8e313d65/pelican_manager6-2*.log
+[AutoPilotNodelet6-3] process has died [pid 2350, exit code 255, cmd /opt/ros/kinetic/lib/nodelet/nodelet load asctec_autopilot/AutoPilotNodelet pelican_manager6 __name:=AutoPilotNodelet6 __log:=/home/firefly2/.ros/log/a42b14a4-5043-11e7-8749-000e8e313d65/AutoPilotNodelet6-3.log].
+log file: /home/firefly2/.ros/log/a42b14a4-5043-11e7-8749-000e8e313d65/AutoPilotNodelet6-3*.log
