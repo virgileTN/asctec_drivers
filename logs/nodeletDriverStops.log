@@ -1,0 +1,66 @@
+firefly2@firefly2-Mastermind:~$ roslaunch asctec_proc asctec_driver_nodelets.launch 
+... logging to /home/firefly2/.ros/log/fc37976a-50f9-11e7-85a7-000e8e313d65/roslaunch-firefly2-Mastermind-3484.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+
+started roslaunch server http://firefly2-Mastermind:37955/
+
+SUMMARY
+========
+
+PARAMETERS
+ * /AutoPilotNodelet/enable_GPS_DATA: True
+ * /AutoPilotNodelet/enable_IMU_CALCDATA: True
+ * /AutoPilotNodelet/enable_LL_STATUS: True
+ * /AutoPilotNodelet/freq: 20.0
+ * /AutoPilotNodelet/interval_GPS_DATA: 1
+ * /AutoPilotNodelet/interval_IMU_CALCDATA: 1
+ * /AutoPilotNodelet/interval_LL_STATUS: 2
+ * /AutoPilotNodelet/offset_GPS_DATA: 0
+ * /AutoPilotNodelet/offset_IMU_CALCDATA: 0
+ * /AutoPilotNodelet/offset_LL_STATUS: 0
+ * /AutoPilotNodelet/port: /dev/ttyS3
+ * /AutoPilotNodelet/speed: 57600
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.7
+
+NODES
+  /
+    AsctecProcNodelet (nodelet/nodelet)
+    AutoPilotNodelet (nodelet/nodelet)
+    pelican_manager (nodelet/nodelet)
+
+auto-starting new master
+process[master]: started with pid [3495]
+ROS_MASTER_URI=http://localhost:11311
+
+setting /run_id to fc37976a-50f9-11e7-85a7-000e8e313d65
+process[rosout-1]: started with pid [3508]
+started core service [/rosout]
+process[pelican_manager-2]: started with pid [3518]
+process[AutoPilotNodelet-3]: started with pid [3526]
+process[AsctecProcNodelet-4]: started with pid [3527]
+[ INFO] [1497442027.549814639]: Loading nodelet /AutoPilotNodelet of type asctec_autopilot/AutoPilotNodelet to manager pelican_manager with the following remappings:
+[ INFO] [1497442027.556976203]: waitForService: Service [/pelican_manager/load_nodelet] has not been advertised, waiting...
+[ INFO] [1497442027.559733896]: Initializing nodelet with 2 worker threads.
+[ INFO] [1497442027.561121158]: Loading nodelet /AsctecProcNodelet of type asctec_proc/AsctecProcNodelet to manager pelican_manager with the following remappings:
+[ INFO] [1497442027.580990543]: waitForService: Service [/pelican_manager/load_nodelet] is now available.
+[ INFO] [1497442027.643982130]: Initializing AsctecProc Nodelet
+[ INFO] [1497442027.644175811]: Starting AsctecProc
+[ INFO] [1497442027.751015781]: Initializing Autopilot Nodelet
+[ INFO] [1497442027.754713938]: Creating AutoPilot Interface
+[ INFO] [1497442027.784095661]: Initializing serial port...
+[ INFO] [1497442027.784323915]: Successfully connected to /dev/ttyS3, Baudrate 57600
+
+[ INFO] [1497442027.789110397]: Publishing LL_STATUS data
+[ INFO] [1497442027.791820386]: Publishing IMU_CALCDATA data
+[ INFO] [1497442027.794551537]: Publishing GPS_DATA data
+[ INFO] [1497442027.794613141]: Control Disabled
+[ERROR] [1497442091.875363280]:   Unexpected Data: Flushing receive buffer
+[ERROR] [1497442093.975303804]:   Unexpected Data: Flushing receive buffer
+[ERROR] [1497442178.774613887]:   Unexpected Data: Flushing receive buffer
+[ERROR] [1497442296.719671141]: Timeout: 91 bytes available 92 bytes requested
+[ERROR] [1497442296.777873687]: Timeout: 0 bytes available 2 bytes requested
+[ERROR] [1497442296.837414463]: Timeout: 0 bytes available 3 bytes requested
+[ERROR] [1497442296.837728416]: Error Reading Packet Footer: Resource temporarily unavailable
